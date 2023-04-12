@@ -204,17 +204,10 @@ def apply_patch(
 
     # Make sure the module is not currently patched
     remove_patch(model)
+    print("Adding ToMe")
 
-    is_diffusers = isinstance_str(model, "DiffusionPipeline") or isinstance_str(model, "ModelMixin")
-
-    if not is_diffusers:
-        if not hasattr(model, "model") or not hasattr(model.model, "diffusion_model"):
-            # Provided model not supported
-            raise RuntimeError("Provided model was not a Stable Diffusion / Latent Diffusion model, as expected.")
-        diffusion_model = model.model.diffusion_model
-    else:
-        # Supports "pipe.unet" and "unet"
-        diffusion_model = model.unet if hasattr(model, "unet") else model
+    diffusion_model = model
+    is_diffusers = False
 
     diffusion_model._tome_info = {
         "size": None,
@@ -242,7 +235,7 @@ def apply_patch(
             if not hasattr(module, "disable_self_attn") and not is_diffusers:
                 module.disable_self_attn = False
 
-    return model
+    return diffusion_model
 
 
 
